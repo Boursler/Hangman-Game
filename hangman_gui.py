@@ -111,6 +111,7 @@ class HangmanGame():
         self.max_guesses=7
 
     def guess_letter(self, guess):
+        guess=guess.lower()
         if(len(guess) > 1 or not guess.isalpha()):
             return_string = "Invalid response, stay in the spirit of the game."
 
