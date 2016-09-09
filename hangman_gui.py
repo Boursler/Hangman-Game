@@ -25,6 +25,9 @@ class HangmanWindow(Gtk.Window):
         self.print_entry = Gtk.Label()
         vbox.pack_start(self.print_entry, True, True, 0)
 
+        self.input_dialog=Gtk.Label()
+        vbox.pack_start(self.input_dialog, True, True, 0)
+
         letters_hbox=Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         vbox.pack_start(letters_hbox, True, True, 0)
 
@@ -37,7 +40,7 @@ class HangmanWindow(Gtk.Window):
         self.new_guess = Gtk.Entry()
         self.new_guess.set_max_length(1)
         self.new_guess.connect("activate", self.submit_guess)
-        self.new_guess.connect("changed", self.ask_submit_guess)
+        self.new_guess.connect("changed", self.update_guess_text)
         vbox.pack_start(self.new_guess, True, True, 0)
 
         hbox=Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -46,8 +49,6 @@ class HangmanWindow(Gtk.Window):
         self.submit_button = Gtk.Button.new_with_label("Submit")
         self.submit_button.connect("clicked", self.submit_guess)
         hbox.pack_start(self.submit_button, True, True, 0)
-
-  
 
         self.new_game_button=Gtk.Button.new_with_label("Start New Game")
         self.new_game_button.connect("clicked", self.start_new_game)
@@ -62,16 +63,21 @@ class HangmanWindow(Gtk.Window):
         print("guessing " + guess)
         self.draw_screen(output)
 
-    def ask_submit_guess(self, new_guess):
-        user_input=self.new_guess
-        print("True")
-            
-        
+    def update_guess_text(self, new_guess):
+        user_input=self.new_guess.get_text()
+        user_input=user_input.lower()
+        if user_input in self.hangman_game.guessed_letters:
+            self.input_dialog.set_text("You have already guessed that!")
+        elif user_input=='':
+            self.input_dialog.set_text("Guess the next letter!")
+        elif not user_input.isalpha():
+            self.input_dialog.set_text("Invalid input!")
+        else:
+            self.input_dialog.set_text("Submit to guess " + user_input + "?")
 
     def draw_screen(self, last_guess_string):
         self.print_entry.set_text(last_guess_string)
         self.new_guess.set_text('')
-        
         
         output=list()
         for i in self.hangman_game.guessed_letters:
@@ -79,8 +85,6 @@ class HangmanWindow(Gtk.Window):
                 output.append(i)
         output.sort()
         output=" ,".join(output)
-      
-
       
         self.guessed_letters_entry.set_text(output)
         
@@ -136,10 +140,6 @@ class HangmanGame():
 
         return return_string
 
-
-        
-    
-        
 
 win=HangmanWindow("hangman_words.txt")
 win.connect("delete-event", Gtk.main_quit)
