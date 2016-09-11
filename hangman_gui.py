@@ -66,7 +66,9 @@ class HangmanWindow(Gtk.Window):
     def update_guess_text(self, new_guess):
         user_input=self.new_guess.get_text()
         user_input=user_input.lower()
-        if user_input in self.hangman_game.guessed_letters:
+        if self.hangman_game.is_game_over():
+            self.input_dialog.set_text("Game Over")
+        elif user_input in self.hangman_game.guessed_letters:
             self.input_dialog.set_text("You have already guessed that!")
         elif user_input=='':
             self.input_dialog.set_text("Guess the next letter!")
@@ -114,23 +116,30 @@ class HangmanGame():
         self.unguessed_letters=set(self.hangman_word)
         self.max_guesses=7
 
+    def is_game_over(self):
+        if len(self.unguessed_letters)==0 or self.total_guesses>=self.max_guesses:
+            return True
+        else:
+            return False
+
     def guess_letter(self, guess):
         guess=guess.lower()
-        if(len(guess) > 1 or not guess.isalpha()):
-            return_string = "Invalid response, stay in the spirit of the game."
+        if not self.is_game_over():
+            if(len(guess) > 1 or not guess.isalpha()):
+                return_string = "Invalid response, stay in the spirit of the game."
 
-        elif guess in self.guessed_letters:
-            return_string =  'You already guessed that!'
+            elif guess in self.guessed_letters:
+                return_string =  'You already guessed that!'
 
-        elif guess in self.unguessed_letters:
-            self.unguessed_letters.remove(guess)
-            self.guessed_letters.add(guess)
-            return_string = 'You chose wisely'
+            elif guess in self.unguessed_letters:
+                self.unguessed_letters.remove(guess)
+                self.guessed_letters.add(guess)
+                return_string = 'You chose wisely'
 
-        else:
-            self.total_guesses += 1
-            self.guessed_letters.add(guess)
-            return_string = 'You chose poorly'
+            else:
+                self.total_guesses += 1
+                self.guessed_letters.add(guess)
+                return_string = 'You chose poorly'
 
         if(len(self.unguessed_letters) == 0):
             return_string = "You win!!"
