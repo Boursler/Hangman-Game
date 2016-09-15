@@ -104,7 +104,12 @@ class HangmanWindow(Gtk.Window):
         for i in range(0, len(output)):
             if output[i] not in self.hangman_game.guessed_letters:
                 output[i] = '_'
+
         output = "".join(output)
+
+        if self.hangman_game.total_incorrect_guesses==7:
+            output=str("You word was: \n" + self.hangman_game.hangman_word)
+
         return output
 
     def start_new_game(self, button):
