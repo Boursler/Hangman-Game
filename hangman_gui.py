@@ -9,15 +9,22 @@ class HangmanWindow(Gtk.Window):
 
         self.timeout_id=None
 
+        self.hangman_figure_list=["hangman_figures/Hangman0.png",
+                                  "hangman_figures/Hangman1.png",
+                                  "hangman_figures/Hangman2.png",
+                                  "hangman_figures/Hangman3.png",
+                                  "hangman_figures/Hangman4.png",
+                                  "hangman_figures/Hangman5.png",
+                                  "hangman_figures/Hangman6.png",
+                                  "hangman_figures/Hangman7.png"]
         self.dictionary_file_name = dictionary_file_name
         self.hangman_game = HangmanGame(dictionary_file_name)
         
         main_hbox = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 6)
         self.add(main_hbox)
 
-        hangman_image = Gtk.Image.new_from_file("hangman.png")
-
-        main_hbox.pack_start(hangman_image, True, True, 0)
+        self.hangman_image=Gtk.Image.new_from_file("hangman_figures/Hangman0.png")
+        main_hbox.pack_start(self.hangman_image, True, True, 0)
 
         vbox=Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         main_hbox.pack_start(vbox, True, True, 0)
@@ -80,8 +87,9 @@ class HangmanWindow(Gtk.Window):
     def draw_screen(self, last_guess_string):
         self.print_entry.set_text(last_guess_string)
         self.new_guess.set_text('')
-        
         output=list()
+        self.hangman_image.set_from_file(self.hangman_figure_list[
+            self.hangman_game.total_incorrect_guesses])
         for i in self.hangman_game.guessed_letters:
             if i not in self.hangman_game.hangman_word:
                 output.append(i)
@@ -89,7 +97,6 @@ class HangmanWindow(Gtk.Window):
         output=" ,".join(output)
       
         self.guessed_letters_entry.set_text(output)
-        
         self.letter_spaces.set_text(self.guessed_letters_string())
 
     def guessed_letters_string(self):
@@ -110,14 +117,15 @@ class HangmanGame():
     def __init__(self, dictionary_file_name):
         with open(dictionary_file_name) as f:
             self.dictionary =f.read().split()
-        self.total_guesses=0
+        self.total_incorrect_guesses=0
         self.guessed_letters=set()
         self.hangman_word=random.choice(self.dictionary)
         self.unguessed_letters=set(self.hangman_word)
         self.max_guesses=7
 
     def is_game_over(self):
-        if len(self.unguessed_letters)==0 or self.total_guesses>=self.max_guesses:
+        if (len(self.unguessed_letters)==0 or
+            self.total_incorrect_guesses>=self.max_guesses):
             return True
         else:
             return False
@@ -137,14 +145,14 @@ class HangmanGame():
                 return_string = 'You chose wisely'
 
             else:
-                self.total_guesses += 1
+                self.total_incorrect_guesses += 1
                 self.guessed_letters.add(guess)
                 return_string = 'You chose poorly'
 
         if(len(self.unguessed_letters) == 0):
             return_string = "You win!!"
 
-        elif(self.total_guesses >= self.max_guesses):
+        elif(self.total_incorrect_guesses >= self.max_guesses):
             return_string = "You have lost"
 
         return return_string
