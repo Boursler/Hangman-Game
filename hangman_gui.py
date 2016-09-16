@@ -113,10 +113,13 @@ class HangmanWindow(Gtk.Window):
         return output
 
     def start_new_game(self, button):
-        print("Starting a new game")
-        self.hangman_game = HangmanGame(self.dictionary_file_name)
-        self.draw_screen("Welcome to Hangman")
-
+        dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.QUESTION,
+            Gtk.ButtonsType.YES_NO, "Do you want to start a new game?")
+        response = dialog.run()
+        if response == Gtk.ResponseType.YES:
+            self.hangman_game = HangmanGame(self.dictionary_file_name)
+            self.draw_screen("Welcome to Hangman")
+        dialog.destroy()
 
 class HangmanGame():
     def __init__(self, dictionary_file_name):
